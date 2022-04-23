@@ -1,7 +1,7 @@
 import Weather from "./Weather";
 
 function App() {
-  return <Weather />;
+  return <Weather defaultCity= "Las Vegas" />;
 }
 
 export default App;
