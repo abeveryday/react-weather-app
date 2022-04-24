@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import FormattedDate from "./FormattedDate";
 import "./Weather.css";
 import axios from "axios";
+import WeatherDescriptin from "./WeatherDescription";
+import WeatherForcast from "./WeatherForcast";
 
 export default function Weather(props) {
+  const [city, setCity] = useState(props.defaultCity);
   const [weatherData, setWeatherData] = useState({ ready: false });
-  
+
   function handleResponse(response) {
     setWeatherData({
       ready: true,
@@ -19,6 +22,21 @@ export default function Weather(props) {
     });
   }
 
+  function search() {
+    const apiKey = "740cff2b03b6ff4fa9525993b36f2fc7";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=${apiKey}`;
+    axios.get(apiUrl).then(handleResponse);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    search();
+  }
+
+  function handleCityChange(event) {
+    setCity(event.target.value);
+  }
+
   if (weatherData.ready) {
     /*is false by defualt */ return (
       <div className="App">
@@ -30,14 +48,14 @@ export default function Weather(props) {
                   <div className="card-body" id="background">
                     <div className="weather-date-location">
                       <h3 id="day">
-                        <FormattedDate date={weatherData.date}/>
-                        </h3>
+                        <FormattedDate date={weatherData.date} />
+                      </h3>
                       <p className="text-gray">
                         <span id="city" className="weather-location">
                           {weatherData.city}
                         </span>
                       </p>
-                      <form id="search-form">
+                      <form onSubmit={handleSubmit} id="search-form">
                         <div className="row">
                           <div className="col-9">
                             <input
@@ -47,6 +65,7 @@ export default function Weather(props) {
                               autocomplete="off"
                               id="city-input"
                               className="form-control shadow-sm"
+                              onChange={handleCityChange}
                             />
                           </div>
                           <div className="col-3">
@@ -67,73 +86,9 @@ export default function Weather(props) {
                         height="150"
                       />
                     </div>
-                    <div className="weather-data d-flex">
-                      <div className="mr-auto">
-                        <div className="tempE">
-                          <strong id="temperature">
-                            {Math.round(weatherData.temperature)}
-                          </strong>
-                          <span className="units"></span>
-                          <a href="/" id="celsius-link" className="active">
-                            {" "}
-                            °C
-                          </a>{" "}
-                          |
-                          <a href="/" id="fahrenheit-link">
-                            {" "}
-                            °F
-                          </a>{" "}
-                          <span />
-                        </div>
-                        <span id="description">{weatherData.description}</span>
-                        <br />
-                        <span id="humidity">
-                          Humidity: {weatherData.humidity}%
-                        </span>
-                        <br />
-                        <span id="wind"> Wind: {weatherData.wind} km/h </span>
-                      </div>
-                    </div>
+                    <WeatherDescriptin data={weatherData} />
                   </div>
-                  <div className="card-body p-0">
-                    <div className="d-flex weakly-weather">
-                      <div className="weakly-weather-item">
-                        <p className="mb-0" id="day-one"></p>
-                        <i className="mdi mdi-weather-cloudy"></i>
-                        <p className="mb-0" id="forcast-one"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-two"></p>
-                        <i className="mdi mdi-weather-hail"></i>
-                        <p className="mb-0" id="forcast-two"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-three"></p>
-                        <i className="mdi mdi-weather-partlycloudy"></i>
-                        <p className="mb-0" id="forcast-three"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-four"></p>
-                        <i className="mdi mdi-weather-pouring"></i>
-                        <p className="mb-0" id="forcast-four"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-five"></p>
-                        <i className="mdi mdi-weather-pouring"></i>
-                        <p className="mb-0" id="forcast-five"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-six"></p>
-                        <i className="mdi mdi-weather-snowy-rainy"></i>
-                        <p className="mb-0" id="forcast-six"></p>
-                      </div>
-                      <div className="weakly-weather-item">
-                        <p className="mb-1" id="day-seven"></p>
-                        <i className="mdi mdi-weather-snowy"></i>
-                        <p className="mb-0" id="forcast-seven"></p>
-                      </div>
-                    </div>
-                  </div>
+                  <WeatherForcast />
                 </div>
                 <p>
                   <a href="https://github.com/abeveryday/react-weather-app">
@@ -148,9 +103,7 @@ export default function Weather(props) {
       </div>
     );
   } else {
-    const apiKey = "740cff2b03b6ff4fa9525993b36f2fc7";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${props.defaultCity}&units=imperial&appid=${apiKey}`;
-    axios.get(apiUrl).then(handleResponse);
+    search();
 
     return "Loading...";
   }
